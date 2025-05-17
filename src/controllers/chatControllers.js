@@ -1,64 +1,6 @@
-import { GoogleGenAI } from "@google/genai";
 import Chat from "../models/chat.js";
 import UserChats from "../models/userChats.js";
 import { getAuth } from "@clerk/express";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-export const generateChatCompletion = async (req, res, next) => {
-  try {
-    const { userId } = getAuth(req);
-    const message = req.body.message;
-
-    const chat = ai.chats.create({
-      model: "gemini-2.0-flash",
-      history: [],
-    });
-
-    const response = await chat.sendMessage({
-      message: message,
-    });
-
-    //Take the chats, the questions and answers and just save it in db
-    //The part where we save chats(everything) to database
-    let img, question;
-    if (message.length === 2) {
-      img = message[0];
-      question = message[1];
-    } else {
-      img = undefined;
-      question = message[0];
-    }
-    const answer = response.text;
-    const newItems = [
-      {
-        role: "user",
-        parts: [{ text: question }],
-        ...(img && { img }),
-      },
-      { role: "model", parts: [{ text: answer }] },
-    ];
-    const updatedChat = await Chat.updateOne(
-      { _id: req.params.id, userId },
-      {
-        $push: {
-          history: {
-            $each: newItems,
-          },
-        },
-      }
-    );
-
-    const currchat = await Chat.findOne({ _id: req.params.id, userId });
-    console.log(currchat);
-    return res.status(200).json(currchat);
-  } catch (error) {
-    console.log(error);
-    return res
-      .status(500)
-      .json({ message: "Something went wrong while generating answer" });
-  }
-};
 
 export const createNewChat = async (req, res, next) => {
   try {
@@ -122,6 +64,7 @@ export const fetchUserChats = async (req, res, next) => {
     if (userChats.length === 0) {
       return res.status(200).json([]);
     }
+    console.log(res, res.status);
 
     return res.status(200).json(userChats[0].chats);
   } catch (error) {
@@ -134,7 +77,7 @@ export const fetchUserChats = async (req, res, next) => {
 
 export const fetchChat = async (req, res, next) => {
   try {
-    const { userId } = getAuth(req);
+    const { userId, sessionId } = getAuth(req);
     const chat = await Chat.findOne({ _id: req.params.id, userId });
     console.log(chat);
     return res.status(200).json(chat);
@@ -146,19 +89,20 @@ export const fetchChat = async (req, res, next) => {
 };
 
 export const saveChats = async (req, res, next) => {
-  console.log(req.body.message);
   const { question, answer, img } = req.body.message;
-  console.log(question,answer,img);
-  
+  console.log(question, answer, img);
+
   try {
     const { userId } = getAuth(req);
     const newItems = [
       ...(question
-        ? [{
-            role: "user",
-            parts: [{ text: question }],
-            ...(img && { img }),
-          }]
+        ? [
+            {
+              role: "user",
+              parts: [{ text: question }],
+              ...(img && { img }),
+            },
+          ]
         : []),
       { role: "model", parts: [{ text: answer }] },
     ];

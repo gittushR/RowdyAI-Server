@@ -17,18 +17,18 @@ const appRouter = Router();
 // });
 
 // Upload files to Imagekit Server
-appRouter.get("/upload", requireAuth(), uploadFiles);
+appRouter.get("/upload", uploadFiles);
 
 //save conversations
-appRouter.put("/chat/new/:id", requireAuth(), saveChats);
+appRouter.put("/chat/new/:id", saveChats);
 
 //Create a new UserChat
-appRouter.post("/chat/newChat", requireAuth(), createNewChat);
+appRouter.post("/chat/newChat", createNewChat);
 
 //Fetch user chats
-appRouter.get("/chat/userChats", requireAuth(), fetchUserChats);
+appRouter.get("/chat/userChats", fetchUserChats);
 
 //Fetch chats of that particular id
-appRouter.get("/chat/:id", requireAuth(), fetchChat);
+appRouter.get("/chat/:id", fetchChat);
 
 export default appRouter;

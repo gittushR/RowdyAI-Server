@@ -8,7 +8,7 @@ import {
 } from "../controllers/chatControllers.js";
 import { requireAuth } from "@clerk/express";
 import path from "path";
-import __dirname from "../../index.js";
+import {__dirname} from "../../index.js";
 
 const appRouter = Router();
 

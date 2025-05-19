@@ -49,6 +49,7 @@ export const createNewChat = async (req, res, next) => {
     }
     return res.status(200).json(newChat._id);
   } catch (error) {
+    console.error(error);
     return res
       .status(500)
       .json({ message: "Something went wrong while creating a new chat" });
@@ -64,10 +65,10 @@ export const fetchUserChats = async (req, res, next) => {
     if (userChats.length === 0) {
       return res.status(200).json([]);
     }
-    console.log(res, res.status);
 
     return res.status(200).json(userChats[0].chats);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
       message:
         "Something went wrong while fetching existing chats for the user",
@@ -79,9 +80,9 @@ export const fetchChat = async (req, res, next) => {
   try {
     const { userId, sessionId } = getAuth(req);
     const chat = await Chat.findOne({ _id: req.params.id, userId });
-    console.log(chat);
     return res.status(200).json(chat);
   } catch (error) {
+    console.error(error);
     return res.status(500).json({
       message: "Something went wrong while fetching chat history",
     });
@@ -90,7 +91,6 @@ export const fetchChat = async (req, res, next) => {
 
 export const saveChats = async (req, res, next) => {
   const { question, answer, img } = req.body.message;
-  console.log(question, answer, img);
 
   try {
     const { userId } = getAuth(req);
@@ -118,35 +118,7 @@ export const saveChats = async (req, res, next) => {
     );
     return res.status(200).json(updatedChat);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).json({ message: "Error adding conversation" });
   }
 };
-
-// let img, question;
-//     if (message.length === 2) {
-//       img = message[0];
-//       question = message[1];
-//     } else {
-//       img = undefined;
-//       question = message[0];
-//     }
-//     const answer = response.text;
-//     const newItems = [
-//       {
-//         role: "user",
-//         parts: [{ text: question }],
-//         ...(img && { img }),
-//       },
-//       { role: "model", parts: [{ text: answer }] },
-//     ];
-//     const updatedChat = await Chat.updateOne(
-//       { _id: req.params.id, userId },
-//       {
-//         $push: {
-//           history: {
-//             $each: newItems,
-//           },
-//         },
-//       }
-//     );

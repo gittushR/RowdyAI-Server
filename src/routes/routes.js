@@ -7,6 +7,7 @@ import {
   saveChats,
 } from "../controllers/chatControllers.js";
 import { requireAuth } from "@clerk/express";
+import path from "path";
 
 const appRouter = Router();
 
@@ -17,18 +18,22 @@ const appRouter = Router();
 // });
 
 // Upload files to Imagekit Server
-appRouter.get("/upload", uploadFiles);
+appRouter.get("/upload", requireAuth(), uploadFiles);
 
 //save conversations
-appRouter.put("/chat/new/:id", saveChats);
+appRouter.put("/chat/new/:id", requireAuth(), saveChats);
 
 //Create a new UserChat
-appRouter.post("/chat/newChat", createNewChat);
+appRouter.post("/chat/newChat", requireAuth(), createNewChat);
 
 //Fetch user chats
-appRouter.get("/chat/userChats", fetchUserChats);
+appRouter.get("/chat/userChats", requireAuth(), fetchUserChats);
 
 //Fetch chats of that particular id
-appRouter.get("/chat/:id", fetchChat);
+appRouter.get("/chat/:id", requireAuth(), fetchChat);
+
+appRouter.get('/{*any}', (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
+});
 
 export default appRouter;

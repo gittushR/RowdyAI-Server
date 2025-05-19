@@ -8,6 +8,7 @@ import {
 } from "../controllers/chatControllers.js";
 import { requireAuth } from "@clerk/express";
 import path from "path";
+import __dirname from "../../index.js";
 
 const appRouter = Router();
 
@@ -32,7 +33,7 @@ appRouter.get("/chat/userChats", requireAuth(), fetchUserChats);
 //Fetch chats of that particular id
 appRouter.get("/chat/:id", requireAuth(), fetchChat);
 
-appRouter.get('/{*any}', (req, res) => {
+appRouter.get("/{*any}", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
 });
 
